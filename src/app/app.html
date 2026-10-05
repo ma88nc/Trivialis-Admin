@@ -182,7 +182,7 @@
   }
 </style>
 
-<main class="main">
+<!-- <main class="main">
   <div class="content">
     <div class="left-side">
       <svg
@@ -328,7 +328,7 @@
       </div>
     </div>
   </div>
-</main>
+</main> -->
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
@@ -339,4 +339,19 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
-<router-outlet />
+<div>
+  <nav class='navbar'>
+    <div class='container-fluid'>
+      <a class='navbar-brand'>Welcome to {{title()}}</a>
+      <ul class='nav navbar-links'>
+        <li><a [routerLink]="['/welcome']">Home</a>
+        <!-- <li><a [routerLink]="['/tests']">Take a Test</a></li> -->
+        <li><a [routerLink]="['/admin']">Question Maintenance</a></li>
+      </ul>        
+    </div>
+  </nav>
+  <div class='container'>
+    <br/>
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,0 +1,273 @@
+<form name="form" #f="ngForm" (ngSubmit)="onSubmit()" novalidate>
+  <div class="col-xs-8">
+    <div class="form-group">
+      <input
+        id="new_question"
+        type="radio"
+        value="new_question"
+        name="questionMode"
+        [(ngModel)]="questionModeSignal"
+        (ngModelChange)="onNewUpdateChange()"
+      />
+      New question &nbsp;
+      <input
+        id="update_question"
+        type="radio"
+        value="update_question"
+        name="questionMode"
+        [(ngModel)]="questionModeSignal"
+        (ngModelChange)="onNewUpdateChange()"
+      />
+      Update question
+    </div>
+    <br />
+    @if (questionModeSignal() == 'update_question') {
+    <ag-grid-angular
+      #agGrid
+      style="width: 800px; height: 300px"
+      class="ag-theme-balham"
+      [rowSelection]="'single'"
+      [rowData]="rowData()"
+      [columnDefs]="columnDefs"
+      [pagination]="true"
+      [paginationPageSize]="paginationPageSize"
+    >
+    </ag-grid-angular>
+    <button type="button" (click)="getSelectedRows()">Get Selected Row</button>
+    }
+    <!-- } @else { -->
+
+    <div class="form-group">
+      Question Text
+      <input
+        type="text"
+        class="form-control"
+        id="questionText"
+        name="questionText"
+        [(ngModel)]="newQuestion.questionText"
+      />
+    </div>
+
+    <div class="form-group">
+      Display Answer
+      <input
+        type="text"
+        class="form-control"
+        id="answer"
+        name="answer"
+        [(ngModel)]="newQuestion.displayAnswer"
+      />
+    </div>
+
+    <!-- @let correctAnswerIndex = 1 -->
+
+    <div class="form-group" [ngClass]="{ 'background-color': 'green' }">
+      Correct Answers
+      <br />
+      @for (answer of newQuestion.correctAnswers; track $index) { &nbsp;&nbsp;
+      index = {{ $index }} - Answer
+      <input
+        type="text"
+        id="answerText"
+        name="answerText-{{ $index }}"
+        [(ngModel)]="newQuestion.correctAnswers[$index].answerText"
+      />
+      isRegex
+      <input
+        type="checkbox"
+        id="isRegex"
+        name="isRegex-{{ $index }}"
+        [(ngModel)]="newQuestion.correctAnswers[$index].isRegex"
+      />
+      <br />
+      }
+    </div>
+    <button type="button" (click)="addCorrectAnswer()">Add Answer</button>
+
+    <div class="form-group">
+      <!-- subjects() - {{subjects()[0].mainSubjectId}}, {{subjects()[1].mainSubjectId}} -->
+      Main Subject
+      <select
+        id="selectedMainSubject"
+        name="selectedMainSubject"
+        [(ngModel)]="selectedMainSubject"
+        (change)="onMSChange()"
+      >
+        <option value="undefined">--select a main subject--</option>
+        @for (subject of subjects(); track subject.mainSubjectId) {
+        <option
+          [ngValue]="subject"
+          [selected]="subject.mainSubjectId === newQuestion.mainSubjectID"
+        >
+          {{ subject.subjectText }}
+        </option>
+        }
+      </select>
+    </div>
+
+    <!--   <div class="form-group">
+    Title
+    <select id="selectedTitle" name="selectedTitle" [(ngModel)]="selectedTitle" (change)="setTitle(selectedTitle())">
+        <option value="undefined">--select a title or create a new one--</option> 
+        @for (title of titles(); track title.titleId) {
+            <option [ngValue]="title">
+                {{ title.description }}
+            </option>
+        }        
+    </select>
+</div> -->
+
+    <div class="form-group">
+      <!-- Select Title - new question title is {{newQuestion.titleDescription}} id is {{newQuestion.titleID}} 
+  selectedTitleTmp is {{ selectedTitleTmp }} -->
+      <select
+        id="selectedTitle"
+        name="selectedTitle"
+        [(ngModel)]="selectedTitleTmp"
+        (change)="setTitle($event)"
+      >
+        <option value="undefined">
+          --select a title or create a new one--
+        </option>
+        @for (title of titlesByMS(); track title.titleID) {
+        <option
+          [ngValue]="title"
+          [selected]="title.titleID === newQuestion.titleID"
+        >
+          {{ title.titleID }} - {{ title.description }}
+        </option>
+        }
+      </select>
+      <button type="button" class="btn btn-info" (click)="openModal(template)">
+        +
+      </button>
+    </div>
+
+    <div class="form-group">
+      Has Image?
+      <input
+        type="checkbox"
+        id="hasImage"
+        name="hasImage"
+        [(ngModel)]="newQuestion.hasImage"
+        [checked]="hasImage"
+        (change)="hasImage = !hasImage"
+      />
+    </div>
+
+    @if (hasImage) {
+    <!-- <div class="form-group"> -->
+
+    <!-- IMG preview -->
+    <div>
+      <img [src]="fileDataUri" style="width: 128px" />
+      <input type="file" (change)="previewFile()" #fileInput />
+    </div>
+
+    Image Path
+    <input
+      type="text"
+      class="form-control"
+      id="imagePath"
+      [(ngModel)]="newQuestion.imagePath"
+      name="imagePath"
+    />
+
+    <div class="form-group">
+      Skip Upload?
+      <input
+        type="checkbox"
+        [checked]="skipUpload"
+        (change)="skipUpload = !skipUpload"
+      />
+    </div>
+    <!-- where did this come from?? -->
+    <!-- <div class="form-group">
+          Select Image File to Upload:
+          <input type="file" #fileInput (change)="onFileSelected($event)" />
+      </div> -->
+    }
+
+    <div class="form-group">
+      Difficulty Level
+      <select
+        id="difficultyLevel"
+        name="difficultyLevel"
+        [(ngModel)]="newQuestion.difficultyLevel"
+      >
+        <option value="undefined">--Level--</option>
+        @for (level of [1, 2, 3, 4, 5]; track level) {
+        <option [ngValue]="level">{{ level }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      Reference
+      <input
+        type="text"
+        class="form-control"
+        id="reference"
+        name="reference"
+        [(ngModel)]="newQuestion.reference"
+      />
+    </div>
+
+    <div class="form-group">
+      Is Active?
+      <input
+        type="checkbox"
+        id="isActive"
+        name="isActive"
+        [(ngModel)]="newQuestion.isActive"
+        [value]="true"
+        [checked]="isActive"
+        (change)="isActive = !isActive"
+      />
+    </div>
+
+    <br />
+    <p>
+      <button type="submit">Save</button>
+    </p>
+  </div>
+
+  {{ newQuestion | json }}
+</form>
+
+<ng-template #template>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Add title</h4>
+    <button
+      type="button"
+      class="close pull-right"
+      aria-label="Close"
+      (click)="closeModal()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    Title&nbsp;
+    <input
+      type="text"
+      class="form-control"
+      id="newTitle"
+      [(ngModel)]="newTitle.description"
+      name="newTitle"
+    />
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary"
+      data-dismiss="modal"
+      (click)="closeModal()"
+    >
+      Close
+    </button>
+    <button type="button" class="btn btn-primary" (click)="this.saveTitle()">
+      Save changes
+    </button>
+  </div>
+</ng-template>
